@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>큐미트 QR 레시피 가이드</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f5f7fa; color: #222; }
+  header { background: linear-gradient(135deg, #3a1a1a 0%, #b02020 100%); color: white; padding: 32px 20px 24px; text-align: center; }
+  header h1 { font-size: 2rem; letter-spacing: 2px; margin-bottom: 6px; }
+  header p { font-size: 0.95rem; opacity: 0.85; }
+  .badge { display: inline-block; background: #f0c040; color: #3a1a1a; font-weight: 700; border-radius: 20px; padding: 4px 14px; font-size: 0.8rem; margin-top: 10px; }
+
+  /* STEP nav */
+  .steps { display: flex; justify-content: center; gap: 10px; padding: 20px; flex-wrap: wrap; }
+  .step-btn { background: white; border: 2px solid #b02020; color: #b02020; border-radius: 30px; padding: 8px 20px; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: all .2s; }
+  .step-btn.active, .step-btn:hover { background: #b02020; color: white; }
+
+  .section { display: none; max-width: 800px; margin: 0 auto; padding: 0 16px 40px; }
+  .section.active { display: block; }
+
+  h2 { font-size: 1.25rem; color: #3a1a1a; margin: 24px 0 12px; border-left: 4px solid #b02020; padding-left: 10px; }
+  h3 { font-size: 1rem; color: #b02020; margin: 18px 0 8px; }
+
+  /* Goal cards */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media(max-width:500px){ .card-grid { grid-template-columns: 1fr; } }
+  .card { background: white; border-radius: 14px; padding: 18px 16px; box-shadow: 0 2px 10px rgba(0,0,0,.07); border-top: 4px solid #b02020; cursor: pointer; transition: transform .15s; }
+  .card:hover { transform: translateY(-3px); }
+  .card .icon { font-size: 1.8rem; margin-bottom: 8px; }
+  .card h4 { font-size: 0.95rem; font-weight: 700; color: #3a1a1a; margin-bottom: 4px; }
+  .card p { font-size: 0.8rem; color: #666; line-height: 1.5; }
+  .card .link { font-size: 0.78rem; color: #b02020; font-weight: 700; margin-top: 8px; }
+
+  /* Recipe detail */
+  .recipe-box { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,.07); margin-bottom: 16px; }
+  .recipe-box .tag { display: inline-block; background: #fdecea; color: #b02020; border-radius: 12px; padding: 3px 10px; font-size: 0.75rem; font-weight: 700; margin-bottom: 10px; }
+  .recipe-box .slogan { font-size: 0.9rem; color: #888; font-style: italic; margin-bottom: 12px; border-left: 3px solid #f0c040; padding-left: 10px; }
+  .recipe-box ul { padding-left: 18px; font-size: 0.85rem; line-height: 1.9; color: #444; }
+  .recipe-box .steps-text { font-size: 0.85rem; line-height: 1.8; color: #444; background: #f9fafb; border-radius: 8px; padding: 12px; margin-top: 8px; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 20px; }
+  th { background: #b02020; color: white; padding: 10px 12px; text-align: left; }
+  td { padding: 9px 12px; border-bottom: 1px solid #f0f0f0; color: #444; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f9fafb; }
+
+  /* Tool section */
+  .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media(max-width:500px){ .tool-grid { grid-template-columns: 1fr; } }
+  .tool-card { background: white; border-radius: 12px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .tool-card .icon { font-size: 1.4rem; }
+  .tool-card h4 { font-size: 0.88rem; font-weight: 700; color: #3a1a1a; margin: 6px 0 4px; }
+  .tool-card p { font-size: 0.78rem; color: #666; }
+
+  /* Lineup */
+  .lineup { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media(max-width:500px){ .lineup { grid-template-columns: 1fr; } }
+  .lineup-card { border-radius: 14px; padding: 18px; color: white; }
+  .fit { background: linear-gradient(135deg, #b02020, #e05050); }
+  .meal { background: linear-gradient(135deg, #1a5276, #2e86c1); }
+  .light { background: linear-gradient(135deg, #784212, #ca6f1e); }
+  .balance { background: linear-gradient(135deg, #512e5f, #8e44ad); }
+  .lineup-card h4 { font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+  .lineup-card p { font-size: 0.78rem; opacity: 0.9; line-height: 1.6; }
+
+  footer { text-align: center; padding: 20px; font-size: 0.75rem; color: #aaa; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🥩 큐미트 QMEAT</h1>
+  <p>QR로 연결되는 맞춤형 레시피 패키지</p>
+  <div class="badge">비선호 부위 × 식단관리 × QR 연동</div>
+</header>
+
+<div class="steps">
+  <button class="step-btn active" onclick="showSection('step1', this)">STEP 1 목표 선택</button>
+  <button class="step-btn" onclick="showSection('step2', this)">STEP 2 레시피</button>
+  <button class="step-btn" onclick="showSection('step3', this)">STEP 3 조리도구</button>
+  <button class="step-btn" onclick="showSection('step4', this)">STEP 4 실패방지 팁</button>
+  <button class="step-btn" onclick="showSection('step5', this)">패키지 라인업</button>
+</div>
+
+<!-- STEP 1 -->
+<div id="step1" class="section active">
+  <h2>오늘의 목표를 선택하세요</h2>
+  <div class="card-grid">
+    <div class="card" onclick="showSection('step2', null); highlightRecipe('recipe1')">
+      <div class="icon">💪</div>
+      <h4>근력운동 후 식사</h4>
+      <p>운동 후 고단백 회복식이 필요해요</p>
+      <div class="link">→ 뒷다리살 프로틴 보울</div>
+    </div>
+    <div class="card" onclick="showSection('step2', null); highlightRecipe('recipe2')">
+      <div class="icon">🥗</div>
+      <h4>체중관리 · 다이어트</h4>
+      <p>굶지 않고 포만감 있는 클린 한 끼</p>
+      <div class="link">→ 냉수육 샐러드</div>
+    </div>
+    <div class="card" onclick="showSection('step2', null); highlightRecipe('recipe3')">
+      <div class="icon">🍱</div>
+      <h4>도시락 · 밀프렙</h4>
+      <p>주말 1시간으로 평일 식단 완성</p>
+      <div class="link">→ 소보로 도시락</div>
+    </div>
+    <div class="card" onclick="showSection('step2', null); highlightRecipe('recipe4')">
+      <div class="icon">🍚</div>
+      <h4>자취 한 끼 해결</h4>
+      <p>프라이팬 하나로 고단백 덮밥</p>
+      <div class="link">→ 매콤 뒷다리살 덮밥</div>
+    </div>
+    <div class="card" onclick="showSection('step2', null); highlightRecipe('recipe5')">
+      <div class="icon">🌿</div>
+      <h4>저당 · 혈당관리</h4>
+      <p>저속노화·혈당 관심층을 위한 프리미엄</p>
+      <div class="link">→ 한우 우둔 채소말이</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div id="step2" class="section">
+  <h2>레시피 상세</h2>
+
+  <div class="recipe-box" id="recipe1">
+    <span class="tag">큐미트 FIT · 바디프로필·헬스 입문자</span>
+    <p class="slogan">"닭가슴살이 질린 사람을 위한 한돈 단백질 보울"</p>
+    <h3>🥩 큐미트 뒷다리살 프로틴 보울</h3>
+    <ul>
+      <li><b>사용 부위:</b> 돼지 뒷다리살 또는 안심 150g</li>
+      <li><b>구성:</b> 현미밥·잡곡밥 100g + 양상추 + 오이 + 토마토 + 삶은 달걀 반 개 + 저당 간장소스</li>
+    </ul>
+    <div class="steps-text">
+      뒷다리살을 얇게 썰어 간장·다진 마늘·후추·레몬즙에 10분 재운다.<br>
+      팬에 센 불로 오래 볶지 말고, 중불에서 물 2~3스푼을 넣어 촉촉하게 익힌다.<br>
+      밥과 채소 위에 올려 보울 형태로 제공한다.
+    </div>
+    <h3>📱 QR 선택 항목</h3>
+    <table>
+      <tr><th>선택 항목</th><th>내용</th></tr>
+      <tr><td>운동 목적</td><td>근력운동 후 식사</td></tr>
+      <tr><td>식단 목적</td><td>고단백, 저지방</td></tr>
+      <tr><td>조리 팁</td><td>얇게 썰기 + 수분 조리</td></tr>
+      <tr><td>소스 선택</td><td>저당 간장소스 / 스리라차 요거트소스 / 된장 레몬소스</td></tr>
+    </table>
+  </div>
+
+  <div class="recipe-box" id="recipe2">
+    <span class="tag">큐미트 FIT · 20~30대 여성 식단관리</span>
+    <p class="slogan">"굶는 다이어트 말고, 포만감 있는 클린 한 끼"</p>
+    <h3>🥗 마늘소스 뒷다리살 냉수육 샐러드</h3>
+    <ul>
+      <li><b>사용 부위:</b> 돼지 뒷다리살</li>
+      <li><b>구성:</b> 삶은 뒷다리살 + 오이 + 양배추 + 부추 + 파프리카 + 겨자 마늘소스</li>
+    </ul>
+    <div class="steps-text">
+      뒷다리살을 통마늘·양파·된장 약간·통후추와 함께 삶는다.<br>
+      식힌 뒤 얇게 썰고 채소와 함께 담는다.<br>
+      소스: 간장·식초·다진 마늘·겨자·알룰로스(저당 감미료) 소량으로 만든다.
+    </div>
+    <h3>📱 QR 선택 항목</h3>
+    <table>
+      <tr><th>선택 항목</th><th>내용</th></tr>
+      <tr><td>식단 타입</td><td>저당, 저칼로리, 샐러드</td></tr>
+      <tr><td>조리 난이도</td><td>한 번 삶아 3일 보관</td></tr>
+      <tr><td>소스 선택</td><td>겨자마늘 / 저당 유자 / 스리라차 요거트</td></tr>
+      <tr><td>섭취 상황</td><td>저녁 식단, 도시락, 운동 후</td></tr>
+    </table>
+  </div>
+
+  <div class="recipe-box" id="recipe3">
+    <span class="tag">큐미트 MEAL-PREP · 직장인·갓생</span>
+    <p class="slogan">"주말 1팩으로 평일 식단관리 도시락 완성"</p>
+    <h3>🍱 뒷다리살 소보로 도시락</h3>
+    <ul>
+      <li><b>사용 부위:</b> 돼지 뒷다리살 다짐육</li>
+      <li><b>구성:</b> 다짐육 + 두부 + 달걀 + 브로콜리 + 현미밥</li>
+    </ul>
+    <div class="steps-text">
+      팬에 고기·으깬 두부·간장·다진 마늘·후추를 넣고 수분을 날리듯 볶는다.<br>
+      기름은 최소화하고, 밥 위에 소보로와 데친 브로콜리·달걀을 올린다.<br>
+      💡 다짐육으로 쓰면 질김 문제가 거의 사라진다!
+    </div>
+    <h3>📱 QR 선택 항목</h3>
+    <table>
+      <tr><th>선택 항목</th><th>내용</th></tr>
+      <tr><td>보관 방식</td><td>냉장 3일, 냉동 2주</td></tr>
+      <tr><td>도시락 조합</td><td>현미밥형 / 두부밥형 / 샐러드형</td></tr>
+      <tr><td>조리 시간</td><td>15분</td></tr>
+      <tr><td>자기관리 포인트</td><td>고단백, 포만감, 식비 절감</td></tr>
+    </table>
+  </div>
+
+  <div class="recipe-box" id="recipe4">
+    <span class="tag">큐미트 MEAL-PREP · 자취생·대학생</span>
+    <p class="slogan">"삼겹살보다 가볍고, 닭가슴살보다 맛있는 자취 단백질"</p>
+    <h3>🌶️ 매콤 뒷다리살 고단백 덮밥</h3>
+    <ul>
+      <li><b>사용 부위:</b> 돼지 뒷다리살 얇은 불고기감 150g</li>
+      <li><b>구성:</b> 양파 + 대파 + 양배추 + 밥 100~150g</li>
+      <li><b>양념:</b> 고추장 0.5T·간장 1T·다진 마늘·고춧가루·후추·물 3T</li>
+    </ul>
+    <div class="steps-text">
+      뒷다리살을 최대한 얇게 썰고 양념에 10분 재운다.<br>
+      팬에 양파·양배추를 먼저 볶아 수분을 만든 뒤 고기를 넣는다.<br>
+      물을 조금 넣고 자작하게 익히면 질김이 줄어든다.
+    </div>
+    <h3>📱 QR 선택 항목</h3>
+    <table>
+      <tr><th>선택 항목</th><th>내용</th></tr>
+      <tr><td>예산</td><td>1끼 3,000~4,000원대 콘셉트</td></tr>
+      <tr><td>조리도구</td><td>프라이팬 하나</td></tr>
+      <tr><td>맛 선택</td><td>매콤 / 간장 / 카레</td></tr>
+      <tr><td>식단 선택</td><td>밥 적게 / 채소 많이 / 고기 추가</td></tr>
+    </table>
+  </div>
+
+  <div class="recipe-box" id="recipe5">
+    <span class="tag">큐미트 LIGHT · 저속노화·혈당관리</span>
+    <p class="slogan">"구이용 한우만 찾던 소비자에게 제안하는 담백한 자기관리 한우"</p>
+    <h3>🌿 한우 우둔 채소말이 플레이트</h3>
+    <ul>
+      <li><b>사용 부위:</b> 한우 우둔 또는 설도</li>
+      <li><b>구성:</b> 얇게 썬 우둔 + 파프리카 + 팽이버섯 + 부추 + 저당 간장소스</li>
+    </ul>
+    <div class="steps-text">
+      우둔·설도를 얇게 썰어 채소를 말고 팬에 짧게 굽는다.<br>
+      소스: 간장·식초·다진 마늘·참깨·레몬즙으로 가볍게 만든다.<br>
+      💡 샤브샤브·장조림·불고기 방식으로도 활용 가능!
+    </div>
+    <h3>📱 QR 선택 항목</h3>
+    <table>
+      <tr><th>선택 항목</th><th>내용</th></tr>
+      <tr><td>식단 목적</td><td>저지방, 채소 섭취, 균형식</td></tr>
+      <tr><td>조리 방식</td><td>굽기보다 말이·찜·샤브샤브</td></tr>
+      <tr><td>추천 곁들임</td><td>잡곡밥, 두부면, 샐러드</td></tr>
+      <tr><td>소비 촉진</td><td>등심 외 한우 정육 부위 활용</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div id="step3" class="section">
+  <h2>내 조리도구를 선택하세요</h2>
+  <div class="tool-grid">
+    <div class="tool-card">
+      <div class="icon">🍳</div>
+      <h4>프라이팬</h4>
+      <p>뒷다리살 덮밥, 우둔 채소말이, 프로틴 보울</p>
+    </div>
+    <div class="tool-card">
+      <div class="icon">🫕</div>
+      <h4>냄비</h4>
+      <p>냉수육 샐러드 (수육 삶기)</p>
+    </div>
+    <div class="tool-card">
+      <div class="icon">♨️</div>
+      <h4>에어프라이어</h4>
+      <p>안심 큐브스테이크</p>
+    </div>
+    <div class="tool-card">
+      <div class="icon">📦</div>
+      <h4>전자레인지</h4>
+      <p>소보로 도시락 리히팅</p>
+    </div>
+    <div class="tool-card">
+      <div class="icon">🥡</div>
+      <h4>밀프렙 용기</h4>
+      <p>3일 식단 패키지 보관</p>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div id="step4" class="section">
+  <h2>실패 방지 팁</h2>
+  <table>
+    <tr><th>부위</th><th>실패 원인</th><th>QR 해결법</th></tr>
+    <tr><td>돼지 뒷다리살</td><td>오래 볶으면 질김</td><td>얇게 썰기, 다짐육, 수분 조리</td></tr>
+    <tr><td>돼지 안심</td><td>과가열 시 퍽퍽함</td><td>짧게 굽고 소스 추가</td></tr>
+    <tr><td>한우 우둔</td><td>결이 있어 질길 수 있음</td><td>얇게 썰기, 말이·장조림 활용</td></tr>
+    <tr><td>한우 설도</td><td>구이용으로는 다소 단단함</td><td>샤브샤브, 불고기, 채소말이</td></tr>
+  </table>
+  <h2>STEP 1 → 목표별 연결 레시피</h2>
+  <table>
+    <tr><th>선택지</th><th>연결 레시피</th></tr>
+    <tr><td>체중관리</td><td>냉수육 샐러드, 우둔 채소말이</td></tr>
+    <tr><td>근력운동 후</td><td>뒷다리살 프로틴 보울</td></tr>
+    <tr><td>도시락 준비</td><td>뒷다리살 소보로 도시락</td></tr>
+    <tr><td>자취 한 끼</td><td>매콤 뒷다리살 덮밥</td></tr>
+    <tr><td>저당 식단</td><td>저당 마늘소스 수육, 간장 채소말이</td></tr>
+  </table>
+</div>
+
+<!-- STEP 5 -->
+<div id="step5" class="section">
+  <h2>큐미트 패키지 라인업</h2>
+  <div class="lineup">
+    <div class="lineup-card fit">
+      <h4>🏋️ 큐미트 FIT</h4>
+      <p><b>타깃:</b> 다이어트·운동층<br><b>부위:</b> 돼지 뒷다리살, 안심<br><b>대표 레시피:</b> 프로틴 보울, 냉수육 샐러드</p>
+    </div>
+    <div class="lineup-card meal">
+      <h4>🍱 큐미트 MEAL-PREP</h4>
+      <p><b>타깃:</b> 직장인·대학생<br><b>부위:</b> 돼지 뒷다리살 다짐육<br><b>대표 레시피:</b> 소보로 도시락</p>
+    </div>
+    <div class="lineup-card light">
+      <h4>🌿 큐미트 LIGHT</h4>
+      <p><b>타깃:</b> 저당·저칼로리 선호층<br><b>부위:</b> 돼지 안심, 한우 우둔<br><b>대표 레시피:</b> 채소말이, 샐러드</p>
+    </div>
+    <div class="lineup-card balance">
+      <h4>🏠 큐미트 BALANCE</h4>
+      <p><b>타깃:</b> 가족 건강식<br><b>부위:</b> 돼지 앞다리, 사태<br><b>대표 레시피:</b> 짜글이, 전골, 장조림</p>
+    </div>
+  </div>
+</div>
+
+<footer>ⓒ 큐미트 QMEAT | 비선호 부위 × 식단관리 × QR 연동 레시피 패키지</footer>
+
+<script>
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) {
+    document.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  } else {
+    document.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active'));
+    const map = {step1:0,step2:1,step3:2,step4:3,step5:4};
+    document.querySelectorAll('.step-btn')[map[id]].classList.add('active');
+  }
+}
+function highlightRecipe(id) {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) { el.scrollIntoView({behavior:'smooth'}); el.style.borderTop = '4px solid #f0c040'; }
+  }, 100);
+}
+</script>
+</body>
+</html>
